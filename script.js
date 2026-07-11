@@ -1,118 +1,133 @@
 const rivers = [
-{
-name: “Clarion River”,
-site: “03029500”,
-fly: “Purple Woolly Bugger”
-},
-{
-name: “Oil Creek”,
-site: “03024000”,
-fly: “Olive Woolly Bugger”
-},
-{
-name: “French Creek”,
-site: “03027500”,
-fly: “White Clouser Minnow”
-},
-{
-name: “Redbank Creek”,
-site: “03029000”,
-fly: “Black Woolly Bugger”
-},
-{
-name: “Allegheny River”,
-site: “03020500”,
-fly: “Chartreuse Clouser Minnow”
-}
+   {
+       name: "Clarion River",
+       id: "clarion",
+       site: "03029500",
+       fly: "Purple Woolly Bugger"
+   },
+   {
+       name: "Oil Creek",
+       id: "oil",
+       site: "03024000",
+       fly: "Olive Woolly Bugger"
+   },
+   {
+       name: "French Creek",
+       id: "french",
+       site: "03027500",
+       fly: "White Clouser Minnow"
+   },
+   {
+       name: "Redbank Creek",
+       id: "redbank",
+       site: "03029000",
+       fly: "Black Woolly Bugger"
+   },
+   {
+       name: "Allegheny River",
+       id: "allegheny",
+       site: "03020500",
+       fly: "Chartreuse Clouser Minnow"
+   }
 ];
 
-async function getRiverData() {
 
-for (const river of rivers) {
+async function loadRiverData() {
 
-    const url =
-    `https://waterservices.usgs.gov/nwis/iv/?format=json&sites=${river.site}&parameterCd=00060&siteStatus=all`;
+   for (const river of rivers) {
 
-    try {
+       const display = document.getElementById(river.id);
 
-        const response = await fetch(url);
-        const data = await response.json();
+       try {
 
-        const value =
-        data.value.timeSeries[0]
-        .values[0]
-        .value[0]
-        .value;
+           const url =
+           `https://waterservices.usgs.gov/nwis/iv/?format=json&sites=${river.site}&parameterCd=00060`;
 
-        updateRiverCard(river, value);
+           const response = await fetch(url);
 
-    }
+           const data = await response.json();
 
-    catch(error) {
 
-        console.log(
-            "Could not load " + river.name,
-            error
-        );
+           const flow =
+           data.value
+           .timeSeries[0]
+           .values[0]
+           .value[0]
+           .value;
 
-    }
+
+           const rating = getRating(flow);
+
+
+           display.innerHTML =
+           `
+           <strong>Flow:</strong> ${flow} CFS
+           <br>
+           <strong>Fishing:</strong> ${rating}
+           <br>
+           <strong>Try:</strong> ${river.fly}
+           `;
+
+
+       }
+
+       catch(error) {
+
+           display.innerHTML =
+           `
+           ⚠️ River data unavailable
+           `;
+
+           console.log(
+               river.name,
+               error
+           );
+
+       }
+
+   }
+
+
+   document.getElementById("bestRiver").innerHTML =
+   `
+   River data updated:
+   ${new Date().toLocaleTimeString()}
+   <br><br>
+   Checking conditions for best smallmouth opportunity...
+   `;
+
 }
-}
-
-function updateRiverCard(river, flow) {
-
-const cards =
-document.querySelectorAll(".card");
 
 
-cards.forEach(card => {
-
-    if(card.innerHTML.includes(river.name)) {
-
-        let rating = getRating(flow);
-
-        card.innerHTML +=
-        `
-        <hr>
-        <p><strong>Current Flow:</strong> ${flow} CFS</p>
-        <p><strong>Fishing Outlook:</strong> ${rating}</p>
-        <p><strong>Try:</strong> ${river.fly}</p>
-        `;
-
-    }
-
-});
-}
 
 function getRating(flow) {
 
-flow = Number(flow);
+   flow = Number(flow);
 
 
-if(flow >= 250 && flow <= 700) {
+   if (flow >= 250 && flow <= 700) {
 
-    return "🟢 Excellent";
+       return "🟢 Excellent";
+
+   }
+
+
+   if (flow > 700 && flow <= 1200) {
+
+       return "🟡 Fishable";
+
+   }
+
+
+   return "🔴 Caution";
 
 }
 
-else if(flow > 700 && flow <= 1200) {
 
-    return "🟡 Fishable";
-
-}
-
-else {
-
-    return "🔴 Check conditions";
-
-}
-}
 
 document.addEventListener(
-“DOMContentLoaded”,
-function(){
-
-getRiverData();
-});
+"DOMContentLoaded",
+loadRiverData
+);
 
 
