@@ -35,12 +35,13 @@ const rivers = [
 async function loadRiverData() {
 
     let bestRiver = null;
-    let bestScore = 0;
+    let highestScore = 0;
 
 
     for (const river of rivers) {
 
         const display = document.getElementById(river.id);
+
 
         try {
 
@@ -52,49 +53,48 @@ async function loadRiverData() {
             const data = await response.json();
 
 
-            let flow = "N/A";
-            let height = "N/A";
-            let temp = "N/A";
+            let flow = null;
+            let height = null;
+            let temp = null;
 
 
             data.value.timeSeries.forEach(series => {
 
+                const code =
+                series.variable.variableCode[0].value;
+
                 const value =
-                series.values[0].value[0].value;
+                Number(series.values[0].value[0].value);
 
 
-                if (series.variable.variableCode[0].value === "00060") {
-                    flow = Number(value);
-                }
+                if (code === "00060") flow = value;
 
-                if (series.variable.variableCode[0].value === "00065") {
-                    height = Number(value).toFixed(2);
-                }
+                if (code === "00065") height = value;
 
-                if (series.variable.variableCode[0].value === "00010") {
-                    temp = Number(value).toFixed(1);
-                    temp = ((temp * 9/5) + 32).toFixed(1);
+                if (code === "00010") {
+                    temp = ((value * 9/5) + 32).toFixed(1);
                 }
 
             });
 
 
-            const rating = getRating(flow, temp);
+            const analysis =
+            analyzeConditions(flow, height, temp);
 
-            const score = getScore(flow, temp);
 
+            if (analysis.score > highestScore) {
 
-            if (score > bestScore) {
-
-                bestScore = score;
+                highestScore = analysis.score;
 
                 bestRiver = {
                     name: river.name,
+                    flow,
+                    height,
+                    temp,
                     fly: river.fly,
-                    flow: flow,
-                    height: height,
-                    temp: temp,
-                    rating: rating
+                    score: analysis.score,
+                    rating: analysis.rating,
+                    summary: analysis.summary
                 };
 
             }
@@ -102,17 +102,21 @@ async function loadRiverData() {
 
             display.innerHTML =
             `
-            <strong>Flow:</strong> ${flow} CFS
+            <strong>Flow:</strong> ${flow ?? "N/A"} CFS
             <br>
 
-            <strong>Gage Height:</strong> ${height} ft
+            <strong>Gage Height:</strong> ${height ? height.toFixed(2) : "N/A"} ft
             <br>
 
-            <strong>Water Temp:</strong> ${temp}°F
+            <strong>Water Temp:</strong> ${temp ?? "Not reported"}
             <br>
 
-            <strong>Fishing:</strong> ${rating}
+            <strong>Outlook:</strong> ${analysis.rating}
             <br>
+
+            ${analysis.summary}
+
+            <br><br>
 
             <strong>Try:</strong> ${river.fly}
             `;
@@ -125,133 +129,179 @@ async function loadRiverData() {
             display.innerHTML =
             "⚠️ Data unavailable";
 
-            console.log(river.name, error);
+            console.log(river.name,error);
 
         }
 
     }
 
 
-    updateBestRiver(bestRiver);
+    updateRecommendation(bestRiver);
 
 }
 
 
 
-function getRating(flow, temp) {
+function analyzeConditions(flow,height,temp) {
+
+    let score = 5;
+    let comments = [];
 
 
-    if (
-        flow >= 250 &&
-        flow <= 700 &&
-        temp >= 65 &&
-        temp <= 75
-    ) {
-
-        return "🟢 Excellent";
-
-    }
-
-
-    if (
-        flow >= 200 &&
-        flow <= 1200
-    ) {
-
-        return "🟡 Fishable";
-
-    }
-
-
-    return "🔴 Poor";
-
-}
-
-
-
-function getScore(flow, temp) {
-
-    let score = 0;
-
+    // Flow assessment
 
     if (flow >= 250 && flow <= 700) {
+
         score += 3;
+
+        comments.push(
+            "Flow is in a strong wading range."
+        );
+
     }
 
     else if (flow > 700 && flow <= 1200) {
-        score += 2;
-    }
 
-
-    if (temp >= 65 && temp <= 75) {
-        score += 3;
-    }
-
-    else if (temp >= 55 && temp < 65) {
         score += 1;
+
+        comments.push(
+            "Higher water favors larger streamers."
+        );
+
+    }
+
+    else {
+
+        score -= 2;
+
+        comments.push(
+            "Flow is outside the prime range."
+        );
+
     }
 
 
-    return score;
+
+    // Temperature assessment
+
+    if (temp) {
+
+        temp = Number(temp);
+
+        if (temp >= 65 && temp <= 75) {
+
+            score += 2;
+
+            comments.push(
+                "Water temperature is ideal for active smallmouth."
+            );
+
+        }
+
+        else if (temp < 60) {
+
+            comments.push(
+                "Cool water may require slower presentations."
+            );
+
+        }
+
+    }
+
+    else {
+
+        comments.push(
+            "No live temperature sensor available."
+        );
+
+    }
+
+
+
+    let rating;
+
+
+    if (score >= 9) rating = "🟢 Excellent";
+
+    else if (score >= 7) rating = "🟡 Good";
+
+    else rating = "🔴 Limited";
+
+
+
+    return {
+
+        score,
+
+        rating,
+
+        summary:
+        comments.join(" ")
+
+    };
 
 }
 
 
 
-function updateBestRiver(river) {
+function updateRecommendation(river) {
 
-    const box = document.getElementById("bestRiver");
+    const box =
+    document.getElementById("bestRiver");
 
 
-    if (river) {
-
-        let topwater = "";
-
-        if (river.temp >= 68 && river.temp <= 78) {
-
-            topwater =
-            "<br><br>🐸 Topwater opportunity looks promising";
-
-        }
-
+    if (!river) {
 
         box.innerHTML =
-        `
-        🥇 <strong>${river.name}</strong>
+        "No recommendation available.";
 
-        <br><br>
-
-        Best current smallmouth opportunity
-
-        <br><br>
-
-        Flow: ${river.flow} CFS
-
-        <br>
-
-        Gage Height: ${river.height} ft
-
-        <br>
-
-        Water Temp: ${river.temp}°F
-
-        <br>
-
-        Rating: ${river.rating}
-
-        <br>
-
-        Try: ${river.fly}
-
-        ${topwater}
-
-        <br><br>
-
-        Updated:
-        ${new Date().toLocaleTimeString()}
-        `;
+        return;
 
     }
+
+
+    box.innerHTML =
+    `
+    🥇 <strong>${river.name}</strong>
+
+    <br><br>
+
+    <strong>Smallmouth Index:</strong>
+    ${river.score}/10
+
+    <br>
+
+    ${river.rating}
+
+    <br><br>
+
+    ${river.summary}
+
+    <br><br>
+
+    Flow:
+    ${river.flow ?? "N/A"} CFS
+
+    <br>
+
+    Gage Height:
+    ${river.height ? river.height.toFixed(2) : "N/A"} ft
+
+    <br>
+
+    Water Temp:
+    ${river.temp ?? "Not reported"}
+
+    <br><br>
+
+    Recommended fly:
+    ${river.fly}
+
+    <br><br>
+
+    Updated:
+    ${new Date().toLocaleTimeString()}
+    `;
 
 }
 
