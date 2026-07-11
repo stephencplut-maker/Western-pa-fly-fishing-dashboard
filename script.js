@@ -63,30 +63,35 @@ async function loadRiverData() {
                 const code =
                 series.variable.variableCode[0].value;
 
-
                 const value =
                 Number(series.values[0].value[0].value);
 
 
-                if (code === "00060") flow = value;
+                if (code === "00060")
+                    flow = value;
 
-                if (code === "00065") height = value;
+                if (code === "00065")
+                    height = value;
 
-                if (code === "00010") {
+                if (code === "00010")
                     temp =
-                    ((value * 9/5) + 32).toFixed(1);
-                }
+                    ((value * 9/5)+32).toFixed(1);
 
             });
 
 
-            const analysis =
-            analyzeConditions(flow,temp);
+
+            const conditions =
+            evaluateRiver(flow,height,temp);
 
 
-            if (analysis.score > highestScore) {
 
-                highestScore = analysis.score;
+            if (conditions.totalScore > highestScore &&
+                conditions.wadeStatus !== "🔴 Unsafe") {
+
+                highestScore =
+                conditions.totalScore;
+
 
                 bestRiver = {
 
@@ -94,8 +99,11 @@ async function loadRiverData() {
                     flow,
                     height,
                     temp,
-                    score: analysis.score,
-                    rating: analysis.rating
+                    score: conditions.fishingScore,
+                    rating: conditions.rating,
+                    wadeStatus: conditions.wadeStatus,
+                    wadeNote: conditions.wadeNote,
+                    guideNote: conditions.guideNote
 
                 };
 
@@ -116,14 +124,18 @@ async function loadRiverData() {
             <br>
 
             <strong>Water Temp:</strong>
-            ${temp ? temp + "°F" : "Not reported"}
+            ${temp ? temp+"°F" : "Not reported"}
 
             <br>
 
-            <strong>Outlook:</strong>
-            ${analysis.rating}
-            `;
+            <strong>Wade Safety:</strong>
+            ${conditions.wadeStatus}
 
+            <br>
+
+            <strong>Fishing:</strong>
+            ${conditions.rating}
+            `;
 
 
         }
@@ -132,6 +144,8 @@ async function loadRiverData() {
 
             display.innerHTML =
             "⚠️ Data unavailable";
+
+            console.log(error);
 
         }
 
@@ -144,43 +158,106 @@ async function loadRiverData() {
 
 
 
-function analyzeConditions(flow,temp) {
-
-    let score = 5;
+function evaluateRiver(flow,height,temp) {
 
 
-    if (flow >=250 && flow <=700)
-        score +=3;
+    let fishingScore = 5;
 
-    else if (flow >700 && flow <=1200)
-        score +=1;
 
-    else
-        score -=2;
+    let wadeStatus;
+    let wadeNote;
 
+
+
+    /*
+       Conservative wading rules.
+       These will be tuned by river later.
+    */
+
+
+    if (
+        (flow <= 900) &&
+        (height <= 4)
+    ) {
+
+        wadeStatus =
+        "🟢 Good";
+
+        wadeNote =
+        "Normal wading conditions.";
+
+    }
+
+
+    else if (
+        (flow <= 1400) &&
+        (height <= 5)
+    ) {
+
+        wadeStatus =
+        "🟡 Caution";
+
+        wadeNote =
+        "Fishable, but limit crossings and use care.";
+
+        fishingScore -=1;
+
+    }
+
+
+    else {
+
+        wadeStatus =
+        "🔴 Unsafe";
+
+        wadeNote =
+        "Avoid wading at current levels.";
+
+        fishingScore -=3;
+
+    }
+
+
+
+    if(flow >=250 && flow <=700)
+        fishingScore +=3;
+
+
+    else if(flow >700 && flow <=1200)
+        fishingScore +=1;
 
 
     if(temp) {
 
         if(temp >=65 && temp <=75)
-            score +=2;
-
-        else if(temp <60)
-            score -=1;
+            fishingScore +=2;
 
     }
 
 
+
     let rating =
-    score >=9 ? "🟢 Excellent" :
-    score >=7 ? "🟡 Good" :
+    fishingScore >=9 ? "🟢 Excellent" :
+    fishingScore >=7 ? "🟡 Good" :
     "🔴 Limited";
+
 
 
     return {
 
-        score,
-        rating
+        totalScore:
+        fishingScore,
+
+        fishingScore,
+
+        rating,
+
+        wadeStatus,
+
+        wadeNote,
+
+        guideNote:
+        buildGuideNote(flow,temp)
 
     };
 
@@ -188,43 +265,36 @@ function analyzeConditions(flow,temp) {
 
 
 
-function chooseFly(river) {
-
-    if(river.temp >=68 && river.temp <=78) {
-
-        return {
-
-            first:
-            "🐸 Frog Popper",
-
-            backup:
-            "Purple Woolly Bugger",
-
-            note:
-            "Warm water favors aggressive smallmouth. Work banks, shade, and surface structure."
-
-        };
-
-    }
+function buildGuideNote(flow,temp) {
 
 
-    if(river.flow >700) {
+    let notes = [];
 
-        return {
 
-            first:
-            "Black Woolly Bugger",
+    if(flow >=250 && flow <=700)
+        notes.push(
+        "Ideal streamer flow for smallmouth."
+        );
 
-            backup:
-            "Chartreuse Clouser Minnow",
 
-            note:
-            "Higher water favors larger profiles and slower presentations near current breaks."
+    if(temp >=65 && temp <=75)
+        notes.push(
+        "Water temperature favors active fish."
+        );
 
-        };
 
-    }
+    notes.push(
+    "Focus on pools, seams, and shaded structure."
+    );
 
+
+    return notes.join(" ");
+
+}
+
+
+
+function chooseFly() {
 
     return {
 
@@ -232,10 +302,7 @@ function chooseFly(river) {
         "Purple Woolly Bugger",
 
         backup:
-        "White Clouser Minnow",
-
-        note:
-        "Fish pools, seams, and structure with a 5 wt floating line."
+        "White Clouser Minnow"
 
     };
 
@@ -253,7 +320,7 @@ function updateRecommendation(river) {
     if(!river) {
 
         box.innerHTML =
-        "No recommendation available.";
+        "No safe wading options found.";
 
         return;
 
@@ -261,7 +328,7 @@ function updateRecommendation(river) {
 
 
     const fly =
-    chooseFly(river);
+    chooseFly();
 
 
 
@@ -272,12 +339,17 @@ function updateRecommendation(river) {
 
     <br><br>
 
-    <strong>Smallmouth Index:</strong>
-    ${river.score}/10
+    <strong>Wade Safety:</strong>
+    ${river.wadeStatus}
 
     <br>
 
-    ${river.rating}
+    <strong>Smallmouth Index:</strong>
+    ${river.score}/10
+
+    <br><br>
+
+    ${river.guideNote}
 
     <br><br>
 
@@ -287,16 +359,16 @@ function updateRecommendation(river) {
     <br>
 
     Gage Height:
-    ${river.height ? river.height.toFixed(2) : "N/A"} ft
+    ${river.height ? river.height.toFixed(2):"N/A"} ft
 
     <br>
 
     Water Temp:
-    ${river.temp ? river.temp+"°F" : "Not reported"}
+    ${river.temp ? river.temp+"°F":"Not reported"}
 
     <br><br>
 
-    🎣 <strong>First fly:</strong>
+    🎣 First Fly:
     ${fly.first}
 
     <br>
@@ -306,13 +378,12 @@ function updateRecommendation(river) {
 
     <br><br>
 
-    ${fly.note}
+    ${river.wadeNote}
 
     <br><br>
 
     Updated:
     ${new Date().toLocaleTimeString()}
-
     `;
 
 }
