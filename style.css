@@ -97,3 +97,42 @@ padding: 15px;
 }
 
 }
+/* Access point buttons */
+
+.card a {
+    display: inline-block;
+    margin: 5px 0;
+    padding: 8px 12px;
+    background: #234f4a;
+    color: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 0.95rem;
+}
+
+
+.card a:hover {
+    background: #2f7d6d;
+}
+
+
+
+/* Small section headings inside cards */
+
+.card h4 {
+
+    margin-bottom: 8px;
+    color: #8fd694;
+
+}
+
+
+
+/* Fishing recommendation emphasis */
+
+#bestRiver {
+
+    font-size: 1.05rem;
+    line-height: 1.7;
+
+}
