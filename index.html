@@ -2,282 +2,355 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
 
-<meta charset="UTF-8">
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta
+    name="description"
+    content="Live Western Pennsylvania river conditions, wading recommendations, fishing ratings, and fly suggestions."
+  >
 
-<title>Western PA Fly Fishing Dashboard</title>
+  <title>Western PA Fly Fishing Dashboard</title>
 
-<link rel="stylesheet" href="style.css">
-
+  <link rel="stylesheet" href="style.css">
 </head>
 
 
 <body>
 
+  <header>
+    <h1>🎣 Western PA Fly Fishing Dashboard</h1>
 
-<header>
+    <p>
+      River conditions, smallmouth outlook, and favorite access points
+    </p>
+  </header>
 
-<h1>🎣 Western PA Fly Fishing Dashboard</h1>
 
-<p>
-River conditions, smallmouth outlook, and favorite access points
-</p>
+  <main>
 
-</header>
+    <section>
+      <h2>Today's Fishing Outlook</h2>
+
+      <div class="card highlight">
+        <h3>🥇 Best Choice Today</h3>
 
+        <div id="bestRiver" aria-live="polite">
+          <p>Checking river conditions...</p>
+        </div>
+      </div>
+    </section>
+
+
+    <section>
+      <h2>River Conditions</h2>
+
+      <div class="grid">
 
+        <!-- Clarion River -->
+        <article class="card" id="clarion-card">
+          <h3>Clarion River</h3>
 
-<section>
+          <p>
+            <strong>Target:</strong>
+            Smallmouth Bass
+          </p>
+
+          <p class="gauge-location">
+            USGS 03029500 · Cooksburg, PA
+          </p>
+
+          <div id="clarion" aria-live="polite">
+            <p>Loading river data...</p>
+          </div>
+
+          <h4>📍 Access Points</h4>
 
-<h2>Today's Fishing Outlook</h2>
-
-<div class="card highlight">
-
-<h3>🥇 Best Choice Today</h3>
-
-<p id="bestRiver">
-Checking river conditions...
-</p>
-
-</div>
-
-</section>
-
-
-
-
-<section>
-
-<h2>River Conditions</h2>
-
-
-<div class="grid">
-
-
-
-<div class="card">
-
-<h3>Clarion River</h3>
-
-<p>Target: Smallmouth Bass</p>
-
-<p id="clarion">
-Loading river data...
-</p>
-
-
-<h4>📍 Access Points</h4>
-
-<a href="https://maps.google.com/?q=Cook+Forest+Clarion+River" target="_blank">
-Cook Forest / Cooksburg
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Irwin+Run+Clarion+River" target="_blank">
-Irwin Run
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Gravel+Lick+Clarion+River" target="_blank">
-Gravel Lick
-</a>
-
-</div>
-
-
-
-
-<div class="card">
-
-<h3>Oil Creek</h3>
-
-<p>Target: Smallmouth Bass / Trout</p>
-
-<p id="oil">
-Loading river data...
-</p>
-
-
-<h4>📍 Access Points</h4>
-
-<a href="https://maps.google.com/?q=Cherry+Run+Oil+Creek" target="_blank">
-Cherry Run
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Petroleum+Centre+Oil+Creek" target="_blank">
-Petroleum Centre
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Rynd+Farm+Oil+Creek" target="_blank">
-Rynd Farm
-</a>
-
-</div>
-
-
-
-
-
-<div class="card">
-
-<h3>French Creek</h3>
-
-<p>Target: Smallmouth Bass</p>
-
-<p id="french">
-Loading river data...
-</p>
-
-
-<h4>📍 Access Points</h4>
-
-<a href="https://maps.google.com/?q=Cambridge+Springs+French+Creek" target="_blank">
-Cambridge Springs
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Meadville+French+Creek" target="_blank">
-Meadville
-</a>
-
-</div>
-
-
-
-
-
-<div class="card">
-
-<h3>Redbank Creek</h3>
-
-<p>Target: Smallmouth Bass</p>
-
-<p id="redbank">
-Loading river data...
-</p>
-
-
-<h4>📍 Access Points</h4>
-
-<a href="https://maps.google.com/?q=Brookville+Redbank+Creek" target="_blank">
-Brookville
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=New+Bethlehem+Redbank+Creek" target="_blank">
-New Bethlehem
-</a>
-
-</div>
-
-
-
-
-
-<div class="card">
-
-<h3>Allegheny River</h3>
-
-<p>Target: Smallmouth Bass</p>
-
-<p id="allegheny">
-Loading river data...
-</p>
-
-
-<h4>📍 Access Points</h4>
-
-<a href="https://maps.google.com/?q=Tionesta+Allegheny+River" target="_blank">
-Tionesta
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Franklin+Allegheny+River" target="_blank">
-Franklin
-</a>
-<br>
-
-<a href="https://maps.google.com/?q=Parker+Allegheny+River" target="_blank">
-Parker
-</a>
-
-</div>
-
-
-
-</div>
-
-</section>
-
-
-
-
-
-<section>
-
-<h2>Quick Links</h2>
-
-
-<div class="grid">
-
-
-<div class="card">
-
-<h3>Weather</h3>
-
-<a href="https://weather.gov" target="_blank">
-NOAA Weather
-</a>
-
-</div>
-
-
-<div class="card">
-
-<h3>Radar</h3>
-
-<a href="https://radar.weather.gov" target="_blank">
-Live Radar
-</a>
-
-</div>
-
-
-<div class="card">
-
-<h3>USGS Water Data</h3>
-
-<a href="https://waterdata.usgs.gov" target="_blank">
-River Gauges
-</a>
-
-</div>
-
-
-</div>
-
-
-</section>
-
-
-
-
-<footer>
-
-<p>
-Built for Western Pennsylvania fly fishing adventures 🎣
-</p>
-
-</footer>
-
-
-
-<script src="script.js"></script>
-
+          <a
+            href="https://maps.google.com/?q=Cook+Forest+Clarion+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cook Forest / Cooksburg
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Irwin+Run+Clarion+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Irwin Run
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Gravel+Lick+Clarion+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Gravel Lick
+          </a>
+        </article>
+
+
+        <!-- Oil Creek -->
+        <article class="card" id="oil-card">
+          <h3>Oil Creek</h3>
+
+          <p>
+            <strong>Target:</strong>
+            Smallmouth Bass / Trout
+          </p>
+
+          <p class="gauge-location">
+            USGS 03020500 · Rouseville, PA
+          </p>
+
+          <div id="oil" aria-live="polite">
+            <p>Loading river data...</p>
+          </div>
+
+          <h4>📍 Access Points</h4>
+
+          <a
+            href="https://maps.google.com/?q=Cherry+Run+Oil+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cherry Run
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Petroleum+Centre+Oil+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Petroleum Centre
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Rynd+Farm+Oil+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Rynd Farm
+          </a>
+        </article>
+
+
+        <!-- French Creek -->
+        <article class="card" id="french-card">
+          <h3>French Creek</h3>
+
+          <p>
+            <strong>Target:</strong>
+            Smallmouth Bass
+          </p>
+
+          <p class="gauge-location">
+            USGS 03023100 · Meadville, PA
+          </p>
+
+          <div id="french" aria-live="polite">
+            <p>Loading river data...</p>
+          </div>
+
+          <h4>📍 Access Points</h4>
+
+          <a
+            href="https://maps.google.com/?q=Cambridge+Springs+French+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Cambridge Springs
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Meadville+French+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Meadville
+          </a>
+        </article>
+
+
+        <!-- Redbank Creek -->
+        <article class="card" id="redbank-card">
+          <h3>Redbank Creek</h3>
+
+          <p>
+            <strong>Target:</strong>
+            Smallmouth Bass
+          </p>
+
+          <p class="gauge-location">
+            USGS 03031882 · Brookville, PA
+          </p>
+
+          <div id="redbank" aria-live="polite">
+            <p>Loading river data...</p>
+          </div>
+
+          <h4>📍 Access Points</h4>
+
+          <a
+            href="https://maps.google.com/?q=Brookville+Redbank+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Brookville
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=New+Bethlehem+Redbank+Creek"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            New Bethlehem
+          </a>
+        </article>
+
+
+        <!-- Allegheny River -->
+        <article class="card" id="allegheny-card">
+          <h3>Allegheny River</h3>
+
+          <p>
+            <strong>Target:</strong>
+            Smallmouth Bass
+          </p>
+
+          <p class="gauge-location">
+            USGS 03025500 · Franklin, PA
+          </p>
+
+          <div id="allegheny" aria-live="polite">
+            <p>Loading river data...</p>
+          </div>
+
+          <h4>📍 Access Points</h4>
+
+          <a
+            href="https://maps.google.com/?q=Tionesta+Allegheny+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Tionesta
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Franklin+Allegheny+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Franklin
+          </a>
+
+          <br>
+
+          <a
+            href="https://maps.google.com/?q=Parker+Allegheny+River"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Parker
+          </a>
+        </article>
+
+      </div>
+    </section>
+
+
+    <section>
+      <h2>Quick Links</h2>
+
+      <div class="grid">
+
+        <div class="card">
+          <h3>Weather</h3>
+
+          <a
+            href="https://www.weather.gov"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            NOAA Weather
+          </a>
+        </div>
+
+
+        <div class="card">
+          <h3>Radar</h3>
+
+          <a
+            href="https://radar.weather.gov"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Live Radar
+          </a>
+        </div>
+
+
+        <div class="card">
+          <h3>USGS Water Data</h3>
+
+          <a
+            href="https://waterdata.usgs.gov"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            River Gauges
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+  </main>
+
+
+  <footer>
+    <p>
+      Built for Western Pennsylvania fly fishing adventures 🎣
+    </p>
+
+    <p>
+      Wading recommendations are informational only. Always evaluate
+      current conditions before entering the water.
+    </p>
+  </footer>
+
+
+  <!--
+    Script order is important.
+
+    1. riverProfiles.js contains each river's thresholds.
+    2. riverEngine.js contains the rating and safety logic.
+    3. script.js retrieves live data and updates this page.
+  -->
+
+  <script src="riverProfiles.js"></script>
+  <script src="riverEngine.js"></script>
+  <script src="script.js"></script>
 
 </body>
 
