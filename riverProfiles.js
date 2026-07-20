@@ -2,7 +2,7 @@
 
 /*
  * River Guide Dashboard
- * River-specific knowledge and thresholds.
+ * River-specific profiles and thresholds.
  *
  * This file contains configuration data only.
  * Decision logic belongs in riverEngine.js.
@@ -23,6 +23,7 @@ const RIVER_PROFILES = {
         experiencedMax: 699,
         notRecommendedMin: 700
       },
+
       stage: {
         comfortableMax: 2.5,
         cautionMax: 2.75,
@@ -36,6 +37,7 @@ const RIVER_PROFILES = {
         min: 300,
         max: 500
       },
+
       preferredTemperature: {
         min: 64,
         max: 72
@@ -63,6 +65,7 @@ const RIVER_PROFILES = {
         experiencedMax: 699,
         notRecommendedMin: 700
       },
+
       stage: {
         comfortableMax: 2.3,
         cautionMax: 2.7,
@@ -76,6 +79,7 @@ const RIVER_PROFILES = {
         min: 200,
         max: 400
       },
+
       preferredTemperature: {
         min: 60,
         max: 70
@@ -88,19 +92,49 @@ const RIVER_PROFILES = {
       "Muddler Minnow"
     ]
   },
-clarion: { ... },
 
-oil: { ... },
+  tionesta: {
+    id: "tionesta",
+    name: "Tionesta Creek",
+    gaugeId: "03017500",
+    gaugeLocation: "Kelletville, PA",
+    target: "Smallmouth Bass / Trout",
 
-tionesta: {
-    // Tionesta profile goes here
-},
+    wading: {
+      flow: {
+        comfortableMax: 99,
+        cautionMax: 250,
+        experiencedMax: 400,
+        notRecommendedMin: 401
+      },
 
-french: { ... },
+      stage: {
+        comfortableMax: 1.19,
+        cautionMax: 1.5,
+        experiencedMax: 1.8,
+        notRecommendedMin: 1.81
+      }
+    },
 
-redbank: { ... },
+    fishing: {
+      idealFlow: {
+        min: 60,
+        max: 150
+      },
 
-allegheny: { ... }
+      preferredTemperature: {
+        min: 58,
+        max: 68
+      }
+    },
+
+    flies: [
+      "Purple Woolly Bugger",
+      "Olive Woolly Bugger",
+      "Black Bass Popper"
+    ]
+  },
+
   french: {
     id: "french",
     name: "French Creek",
@@ -116,6 +150,7 @@ allegheny: { ... }
         experiencedMax: 599,
         notRecommendedMin: 600
       },
+
       stage: {
         comfortableMax: 2.0,
         cautionMax: 2.8,
@@ -129,6 +164,7 @@ allegheny: { ... }
         min: 100,
         max: 300
       },
+
       preferredTemperature: {
         min: 64,
         max: 72
@@ -157,6 +193,7 @@ allegheny: { ... }
         experiencedMax: 199,
         notRecommendedMin: 200
       },
+
       stage: {
         comfortableMax: 6.1,
         cautionMax: 6.4,
@@ -170,6 +207,7 @@ allegheny: { ... }
         min: 50,
         max: 120
       },
+
       preferredTemperature: {
         min: 64,
         max: 72
@@ -197,6 +235,7 @@ allegheny: { ... }
         experiencedMax: 4499,
         notRecommendedMin: 4500
       },
+
       stage: {
         comfortableMax: 2.7,
         cautionMax: 3.2,
@@ -210,6 +249,7 @@ allegheny: { ... }
         min: 900,
         max: 1800
       },
+
       preferredTemperature: {
         min: 64,
         max: 72
