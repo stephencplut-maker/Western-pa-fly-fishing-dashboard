@@ -88,7 +88,19 @@ const RIVER_PROFILES = {
       "Muddler Minnow"
     ]
   },
+clarion: { ... },
 
+oil: { ... },
+
+tionesta: {
+    // Tionesta profile goes here
+},
+
+french: { ... },
+
+redbank: { ... },
+
+allegheny: { ... }
   french: {
     id: "french",
     name: "French Creek",
