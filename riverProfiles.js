@@ -2,13 +2,14 @@
 
 /*
  * River Guide Dashboard
- * River-specific profiles and thresholds.
+ * Version 2.0
  *
- * This file contains configuration data only.
- * Decision logic belongs in riverEngine.js.
+ * River-specific configuration data.
+ * All decision logic resides in riverEngine.js.
  */
 
-const RIVER_PROFILES = {
+const RIVER_PROFILES = Object.freeze({
+
   clarion: {
     id: "clarion",
     name: "Clarion River",
@@ -17,6 +18,7 @@ const RIVER_PROFILES = {
     target: "Smallmouth Bass",
 
     wading: {
+
       flow: {
         comfortableMax: 500,
         cautionMax: 600,
@@ -33,7 +35,9 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
+
       flowZones: [
+
         {
           min: 0,
           max: 249,
@@ -41,6 +45,7 @@ const RIVER_PROFILES = {
           label: "Poor",
           status: "low"
         },
+
         {
           min: 250,
           max: 500,
@@ -48,6 +53,7 @@ const RIVER_PROFILES = {
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 501,
           max: 600,
@@ -55,6 +61,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 601,
           max: Infinity,
@@ -62,12 +69,14 @@ const RIVER_PROFILES = {
           label: "Dangerous",
           status: "dangerous"
         }
+
       ],
 
       preferredTemperature: {
         min: 64,
         max: 72
       }
+
     },
 
     flies: [
@@ -75,9 +84,11 @@ const RIVER_PROFILES = {
       "Olive Clouser Minnow",
       "Black Bass Popper"
     ]
+
   },
 
   oil: {
+
     id: "oil",
     name: "Oil Creek",
     gaugeId: "03020500",
@@ -85,6 +96,7 @@ const RIVER_PROFILES = {
     target: "Smallmouth Bass / Trout",
 
     wading: {
+
       flow: {
         comfortableMax: 400,
         cautionMax: 600,
@@ -96,26 +108,31 @@ const RIVER_PROFILES = {
         comfortableMax: 2.3,
         cautionMax: 2.7,
         experiencedMax: 3.09,
-        notRecommendedMin: 3.1
+        notRecommendedMin: 3.10
       }
+
     },
 
     fishing: {
+
       flowZones: [
+
         {
           min: 0,
-          max: 149,
+          max: 199,
           score: 1,
           label: "Poor",
           status: "low"
         },
+
         {
-          min: 150,
+          min: 200,
           max: 400,
           score: 5,
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 401,
           max: 500,
@@ -123,6 +140,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 501,
           max: Infinity,
@@ -130,12 +148,14 @@ const RIVER_PROFILES = {
           label: "Dangerous",
           status: "dangerous"
         }
+
       ],
 
       preferredTemperature: {
         min: 60,
         max: 70
       }
+
     },
 
     flies: [
@@ -143,16 +163,19 @@ const RIVER_PROFILES = {
       "Olive Clouser Minnow",
       "Muddler Minnow"
     ]
+
   },
 
   tionesta: {
+
     id: "tionesta",
     name: "Tionesta Creek",
     gaugeId: "03017500",
-    gaugeLocation: "Kelletville, PA",
+    gaugeLocation: "Kellettville, PA",
     target: "Smallmouth Bass / Trout",
 
     wading: {
+
       flow: {
         comfortableMax: 99,
         cautionMax: 250,
@@ -162,14 +185,17 @@ const RIVER_PROFILES = {
 
       stage: {
         comfortableMax: 1.19,
-        cautionMax: 1.5,
-        experiencedMax: 1.8,
+        cautionMax: 1.50,
+        experiencedMax: 1.80,
         notRecommendedMin: 1.81
       }
+
     },
 
     fishing: {
+
       flowZones: [
+
         {
           min: 0,
           max: 149,
@@ -177,6 +203,7 @@ const RIVER_PROFILES = {
           label: "Poor",
           status: "low"
         },
+
         {
           min: 150,
           max: 400,
@@ -184,6 +211,7 @@ const RIVER_PROFILES = {
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 401,
           max: 500,
@@ -191,6 +219,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 501,
           max: Infinity,
@@ -198,12 +227,14 @@ const RIVER_PROFILES = {
           label: "Dangerous",
           status: "dangerous"
         }
+
       ],
 
       preferredTemperature: {
         min: 58,
         max: 68
       }
+
     },
 
     flies: [
@@ -211,9 +242,9 @@ const RIVER_PROFILES = {
       "Olive Woolly Bugger",
       "Black Bass Popper"
     ]
-  },
 
-  french: {
+  },
+    french: {
     id: "french",
     name: "French Creek",
     gaugeId: "03023100",
@@ -246,6 +277,7 @@ const RIVER_PROFILES = {
           label: "Poor",
           status: "low"
         },
+
         {
           min: 200,
           max: 500,
@@ -253,6 +285,7 @@ const RIVER_PROFILES = {
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 501,
           max: 600,
@@ -260,6 +293,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 601,
           max: Infinity,
@@ -315,6 +349,7 @@ const RIVER_PROFILES = {
           label: "Poor",
           status: "low"
         },
+
         {
           min: 80,
           max: 200,
@@ -322,6 +357,7 @@ const RIVER_PROFILES = {
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 201,
           max: 250,
@@ -329,6 +365,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 251,
           max: Infinity,
@@ -350,8 +387,7 @@ const RIVER_PROFILES = {
       "Green Frog Popper"
     ]
   },
-
-  allegheny: {
+    allegheny: {
     id: "allegheny",
     name: "Allegheny River",
     gaugeId: "03025500",
@@ -383,6 +419,7 @@ const RIVER_PROFILES = {
           label: "Poor",
           status: "low"
         },
+
         {
           min: 1800,
           max: 3500,
@@ -390,6 +427,7 @@ const RIVER_PROFILES = {
           label: "Good to Optimal",
           status: "optimal"
         },
+
         {
           min: 3501,
           max: 4500,
@@ -397,6 +435,7 @@ const RIVER_PROFILES = {
           label: "High but Poor",
           status: "high"
         },
+
         {
           min: 4501,
           max: Infinity,
@@ -418,4 +457,4 @@ const RIVER_PROFILES = {
       "Large Bass Popper"
     ]
   }
-};
+});
