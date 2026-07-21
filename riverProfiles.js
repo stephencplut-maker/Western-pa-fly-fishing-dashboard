@@ -33,10 +33,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 300,
-        max: 500
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 249,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 250,
+          max: 500,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 501,
+          max: 600,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 601,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 64,
@@ -75,10 +101,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 200,
-        max: 400
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 149,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 150,
+          max: 400,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 401,
+          max: 500,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 501,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 60,
@@ -117,10 +169,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 60,
-        max: 150
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 149,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 150,
+          max: 400,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 401,
+          max: 500,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 501,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 58,
@@ -160,10 +238,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 100,
-        max: 300
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 199,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 200,
+          max: 500,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 501,
+          max: 600,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 601,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 64,
@@ -203,10 +307,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 50,
-        max: 120
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 79,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 80,
+          max: 200,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 201,
+          max: 250,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 251,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 64,
@@ -245,10 +375,36 @@ const RIVER_PROFILES = {
     },
 
     fishing: {
-      idealFlow: {
-        min: 900,
-        max: 1800
-      },
+      flowZones: [
+        {
+          min: 0,
+          max: 1799,
+          score: 1,
+          label: "Poor",
+          status: "low"
+        },
+        {
+          min: 1800,
+          max: 3500,
+          score: 5,
+          label: "Good to Optimal",
+          status: "optimal"
+        },
+        {
+          min: 3501,
+          max: 4500,
+          score: 2,
+          label: "High but Poor",
+          status: "high"
+        },
+        {
+          min: 4501,
+          max: Infinity,
+          score: 0,
+          label: "Dangerous",
+          status: "dangerous"
+        }
+      ],
 
       preferredTemperature: {
         min: 64,
