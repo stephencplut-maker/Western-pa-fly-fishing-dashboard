@@ -96,7 +96,7 @@ const RIVER_PROFILES = {
       },
 
       /*
-       * Revised based on field observation:
+       * Revised after field observation:
        * 220 CFS / 2.64 ft was easily wadable.
        */
 
@@ -169,11 +169,18 @@ const RIVER_PROFILES = {
         notRecommendedMin: 401
       },
 
+      /*
+       * Temporary stage thresholds based on the
+       * current Oil Creek baseline.
+       * These will be field-tested and adjusted
+       * after real-world Tionesta observations.
+       */
+
       stage: {
-        comfortableMax: 1.19,
-        cautionMax: 1.5,
-        experiencedMax: 1.8,
-        notRecommendedMin: 1.81
+        comfortableMax: 3.0,
+        cautionMax: 3.5,
+        experiencedMax: 4.0,
+        notRecommendedMin: 4.01
       }
     },
 
