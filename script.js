@@ -2,28 +2,31 @@
 
 /*
  * Western PA Fly Fishing Dashboard
+ *
  * Version 2.0
  *
- * Loads live USGS data for every river defined in riverProfiles.js,
- * evaluates each river through riverEngine.js, updates the river cards,
- * and selects the best safe wading option.
+ * Primary purpose:
+ * Determine which rivers can safely be waded today
+ * using river-specific USGS flow and gage-height
+ * thresholds.
+ *
+ * This version intentionally does NOT attempt to predict
+ * fishing quality or produce a numerical fishing score.
+ *
+ * The angler decides how good the fishing is likely to be
+ * based on season, weather, water temperature, experience,
+ * and personal knowledge.
  */
 
-const USGS_PARAMETER_CODES = Object.freeze({
+const USGS_PARAMETER_CODES = {
   flow: "00060",
   stage: "00065",
   temperature: "00010"
-});
+};
 
 
 /*
- * Load all river conditions after the page is ready.
- *
- * Script order in index.html must be:
- *
- * 1. riverProfiles.js
- * 2. riverEngine.js
- * 3. script.js
+ * Load river conditions after the page is ready.
  */
 document.addEventListener(
   "DOMContentLoaded",
@@ -32,30 +35,39 @@ document.addEventListener(
 
 
 /*
- * Retrieve and display conditions for every configured river.
+ * Retrieve and display all configured rivers.
  */
 async function loadRiverData() {
-  const profiles = Object.values(RIVER_PROFILES);
 
-  const results = await Promise.all(
-    profiles.map(loadSingleRiver)
+  const profiles =
+    Object.values(RIVER_PROFILES);
+
+  const results =
+    await Promise.all(
+      profiles.map(loadSingleRiver)
+    );
+
+  const availableResults =
+    results.filter(
+      result => result !== null
+    );
+
+  updateRecommendation(
+    availableResults
   );
-
-  const availableResults = results.filter(
-    result => result !== null
-  );
-
-  updateRecommendation(availableResults);
 }
 
 
 /*
- * Retrieve USGS data and evaluate one river.
+ * Retrieve USGS data for one river.
  */
 async function loadSingleRiver(profile) {
-  const display = document.getElementById(profile.id);
+
+  const display =
+    document.getElementById(profile.id);
 
   if (!display) {
+
     console.warn(
       `No HTML element found for river ID: ${profile.id}`
     );
@@ -64,24 +76,25 @@ async function loadSingleRiver(profile) {
   }
 
   try {
-    const readings = await fetchUsgsReadings(
-      profile.gaugeId
-    );
 
-    /*
-     * All fishing and wading decisions now come from
-     * riverEngine.js.
-     */
-    const evaluation = evaluateRiver(
-      profile.id,
-      readings
-    );
+    const readings =
+      await fetchUsgsReadings(
+        profile.gaugeId
+      );
 
-    display.innerHTML = createRiverCardContent(
-      profile,
-      readings,
-      evaluation
-    );
+    const evaluation =
+      evaluateRiverConditions(
+        profile,
+        readings.flow,
+        readings.stage
+      );
+
+    display.innerHTML =
+      createRiverCardContent(
+        profile,
+        readings,
+        evaluation
+      );
 
     return {
       profile,
@@ -90,6 +103,7 @@ async function loadSingleRiver(profile) {
     };
 
   } catch (error) {
+
     console.error(
       `Unable to load ${profile.name}:`,
       error
@@ -110,25 +124,25 @@ async function loadSingleRiver(profile) {
  * Request current instantaneous values from USGS.
  */
 async function fetchUsgsReadings(gaugeId) {
-  const parameterCodes = Object.values(
-    USGS_PARAMETER_CODES
-  ).join(",");
 
   const url =
     "https://waterservices.usgs.gov/nwis/iv/" +
-    `?format=json&sites=${encodeURIComponent(gaugeId)}` +
-    `&parameterCd=${parameterCodes}` +
+    `?format=json&sites=${gaugeId}` +
+    "&parameterCd=00060,00065,00010" +
     "&siteStatus=all";
 
-  const response = await fetch(url);
+  const response =
+    await fetch(url);
 
   if (!response.ok) {
+
     throw new Error(
       `USGS request failed with status ${response.status}`
     );
   }
 
-  const data = await response.json();
+  const data =
+    await response.json();
 
   const readings = {
     flow: null,
@@ -140,64 +154,70 @@ async function fetchUsgsReadings(gaugeId) {
   const timeSeries =
     data?.value?.timeSeries ?? [];
 
+
   for (const series of timeSeries) {
+
     const parameterCode =
-      series?.variable?.variableCode?.[0]?.value;
+      series?.variable
+        ?.variableCode?.[0]?.value;
 
     const latestValue =
-      getLatestValidValue(series);
+      series?.values?.[0]
+        ?.value?.[0];
 
     if (!latestValue) {
       continue;
     }
 
-    const numericValue = Number(
-      latestValue.value
-    );
+    const numericValue =
+      Number(latestValue.value);
 
     if (!Number.isFinite(numericValue)) {
       continue;
     }
 
+
     if (
       parameterCode ===
       USGS_PARAMETER_CODES.flow
     ) {
-      readings.flow = numericValue;
+
+      readings.flow =
+        numericValue;
     }
+
 
     if (
       parameterCode ===
       USGS_PARAMETER_CODES.stage
     ) {
-      readings.stage = numericValue;
+
+      readings.stage =
+        numericValue;
     }
+
 
     if (
       parameterCode ===
       USGS_PARAMETER_CODES.temperature
     ) {
+
       readings.temperature =
-        celsiusToFahrenheit(numericValue);
+        celsiusToFahrenheit(
+          numericValue
+        );
     }
 
-    if (latestValue.dateTime) {
-      const observationTime =
-        new Date(latestValue.dateTime);
 
-      if (
-        !Number.isNaN(
-          observationTime.getTime()
-        ) &&
-        (
-          readings.timestamp === null ||
-          observationTime >
-            readings.timestamp
-        )
-      ) {
-        readings.timestamp =
-          observationTime;
-      }
+    if (
+      latestValue.dateTime &&
+      !readings.timestamp
+    ) {
+
+      readings.timestamp =
+        new Date(
+          latestValue.dateTime
+        );
     }
   }
 
@@ -206,54 +226,241 @@ async function fetchUsgsReadings(gaugeId) {
 
 
 /*
- * Return the most recent usable value from one USGS series.
+ * Evaluate river wading conditions.
+ *
+ * Flow and gage height are evaluated independently.
+ *
+ * The more conservative result always wins.
  */
-function getLatestValidValue(series) {
-  const values =
-    series?.values?.[0]?.value ?? [];
+function evaluateRiverConditions(
+  profile,
+  flow,
+  stage
+) {
 
-  for (let index = values.length - 1; index >= 0; index -= 1) {
-    const candidate = values[index];
-    const numericValue = Number(candidate?.value);
+  const flowRating =
+    evaluateThreshold(
+      flow,
+      profile.wading.flow
+    );
 
-    if (Number.isFinite(numericValue)) {
-      return candidate;
-    }
-  }
 
-  return null;
+  const stageRating =
+    evaluateThreshold(
+      stage,
+      profile.wading.stage
+    );
+
+
+  const wading =
+    chooseMoreConservativeRating(
+      flowRating,
+      stageRating
+    );
+
+
+  return {
+    flowRating,
+    stageRating,
+    wading
+  };
 }
 
 
 /*
- * Build the live conditions displayed in each river card.
+ * Convert a current reading into one of the
+ * four river-specific wading safety levels.
+ *
+ * Level 1 = Comfortable
+ * Level 2 = Use Caution
+ * Level 3 = Experienced Waders Only
+ * Level 4 = Not Recommended
+ *
+ * Level 0 = Not Available
+ */
+function evaluateThreshold(
+  value,
+  thresholds
+) {
+
+  if (
+    value === null ||
+    value === undefined ||
+    !Number.isFinite(value)
+  ) {
+
+    return {
+      level: 0,
+      label: "⚪ Not Available"
+    };
+  }
+
+
+  if (
+    value <=
+    thresholds.comfortableMax
+  ) {
+
+    return {
+      level: 1,
+      label: "🟢 Comfortable"
+    };
+  }
+
+
+  if (
+    value <=
+    thresholds.cautionMax
+  ) {
+
+    return {
+      level: 2,
+      label: "🟡 Use Caution"
+    };
+  }
+
+
+  if (
+    value <=
+    thresholds.experiencedMax
+  ) {
+
+    return {
+      level: 3,
+      label:
+        "🟠 Experienced Waders Only"
+    };
+  }
+
+
+  return {
+    level: 4,
+    label:
+      "🔴 Not Recommended"
+  };
+}
+
+
+/*
+ * If flow and stage disagree, use the
+ * more conservative rating.
+ */
+function chooseMoreConservativeRating(
+  flowRating,
+  stageRating
+) {
+
+  if (flowRating.level === 0) {
+    return stageRating;
+  }
+
+
+  if (stageRating.level === 0) {
+    return flowRating;
+  }
+
+
+  return flowRating.level >=
+    stageRating.level
+    ? flowRating
+    : stageRating;
+}
+
+
+/*
+ * Create the information displayed inside
+ * each river card.
  */
 function createRiverCardContent(
   profile,
   readings,
   evaluation
 ) {
+
   const updatedTime =
-    formatTimestamp(readings.timestamp);
+    readings.timestamp
+      ? readings.timestamp.toLocaleString()
+      : "Not reported";
 
-  const scoringBasis =
-    createScoringBasis(evaluation);
 
-  const fishingRating =
-    createFishingRating(
-      evaluation.fishingScore
-    );
+  let availabilityMessage;
+
+
+  switch (
+    evaluation.wading.level
+  ) {
+
+    case 1:
+
+      availabilityMessage =
+        `
+        <p>
+          <strong>Wading Status:</strong>
+          🟢 <strong>AVAILABLE</strong>
+        </p>
+        `;
+
+      break;
+
+
+    case 2:
+
+      availabilityMessage =
+        `
+        <p>
+          <strong>Wading Status:</strong>
+          🟡 <strong>AVAILABLE — USE CAUTION</strong>
+        </p>
+        `;
+
+      break;
+
+
+    case 3:
+
+      availabilityMessage =
+        `
+        <p>
+          <strong>Wading Status:</strong>
+          🟠 <strong>AVAILABLE — EXPERIENCED WADERS</strong>
+        </p>
+        `;
+
+      break;
+
+
+    case 4:
+
+      availabilityMessage =
+        `
+        <p>
+          <strong>Wading Status:</strong>
+          🔴 <strong>NOT AVAILABLE FOR NORMAL WADING</strong>
+        </p>
+        `;
+
+      break;
+
+
+    default:
+
+      availabilityMessage =
+        `
+        <p>
+          <strong>Wading Status:</strong>
+          ⚪ <strong>UNABLE TO DETERMINE</strong>
+        </p>
+        `;
+  }
+
 
   return `
+
+    ${availabilityMessage}
+
     <p>
       <strong>Flow:</strong>
       ${formatFlow(readings.flow)}
-    </p>
-
-    <p>
-      <strong>Fishing Flow Zone:</strong>
-      ${evaluation.flowZoneIcon}
-      ${evaluation.flowZoneLabel}
     </p>
 
     <p>
@@ -270,290 +477,316 @@ function createRiverCardContent(
 
     <p>
       <strong>Wading Recommendation:</strong>
-      ${evaluation.wading.icon}
       ${evaluation.wading.label}
     </p>
 
     <p>
-      <strong>Fishing Rating:</strong>
-      ${formatFishingScore(
-        evaluation.fishingScore
-      )}
-      ${fishingRating}
-    </p>
-
-    <p>
-      <strong>Rating Basis:</strong>
-      ${scoringBasis}
-    </p>
-
-    <p>
       <strong>Suggested Fly:</strong>
-      ${evaluation.suggestedFly}
+      ${selectSuggestedFly(profile)}
     </p>
 
     <p>
-      <strong>Condition Summary:</strong><br>
-      ${evaluation.guideNotes}
-    </p>
-
-    <p class="updated-time">
       <small>
-        USGS updated: ${updatedTime}
+        USGS updated:
+        ${updatedTime}
       </small>
     </p>
+
   `;
 }
 
 
 /*
- * Select and display the highest-rated eligible river.
+ * Select a simple first-choice fly.
  *
- * Eligibility is determined by riverEngine.js and requires:
- *
- * - a valid fishing score
- * - a non-dangerous fishing-flow zone
- * - wading that is not rated Not Recommended
+ * This is NOT a fishing prediction.
+ * It is simply the first fly listed in
+ * the river's profile.
  */
-function updateRecommendation(results) {
-  const box = document.getElementById(
-    "bestRiver"
-  );
+function selectSuggestedFly(profile) {
+
+  const flies =
+    profile.flies ?? [];
+
+  if (
+    flies.length === 0
+  ) {
+
+    return "Purple Woolly Bugger";
+  }
+
+  return flies[0];
+}
+
+
+/*
+ * Update the top-of-page recommendation.
+ *
+ * The purpose is now to answer:
+ *
+ * "Which rivers can I safely wade today?"
+ *
+ * No fishing score is used.
+ */
+function updateRecommendation(
+  results
+) {
+
+  const box =
+    document.getElementById(
+      "bestRiver"
+    );
 
   if (!box) {
     return;
   }
 
-  const evaluations = results.map(
-    result => result.evaluation
-  );
 
-  const bestEvaluation =
-    selectBestRiver(evaluations);
+  const comfortable =
+    results.filter(
+      result =>
+        result.evaluation.wading.level === 1
+    );
 
-  if (!bestEvaluation) {
-    box.innerHTML = `
+
+  const caution =
+    results.filter(
+      result =>
+        result.evaluation.wading.level === 2
+    );
+
+
+  const experienced =
+    results.filter(
+      result =>
+        result.evaluation.wading.level === 3
+    );
+
+
+  const notRecommended =
+    results.filter(
+      result =>
+        result.evaluation.wading.level === 4
+    );
+
+
+  let html = "";
+
+
+  html += `
+    <h3>
+      🟢 Rivers Available for Wading
+    </h3>
+  `;
+
+
+  if (
+    comfortable.length === 0 &&
+    caution.length === 0 &&
+    experienced.length === 0
+  ) {
+
+    html += `
       <p>
-        🔴 <strong>No river is currently recommended
-        for wading.</strong>
-      </p>
-
-      <p>
-        Review the individual river cards before
-        deciding whether to fish from shore or postpone
-        the trip.
-      </p>
-
-      <p>
-        <small>
-          Dashboard checked:
-          ${new Date().toLocaleString()}
-        </small>
+        No rivers currently meet the
+        available wading criteria.
       </p>
     `;
 
-    return;
+  } else {
+
+
+    if (
+      comfortable.length > 0
+    ) {
+
+      html += `
+        <p>
+          <strong>
+            🟢 Comfortable
+          </strong>
+        </p>
+      `;
+
+      for (
+        const result
+        of comfortable
+      ) {
+
+        html += `
+          <p>
+            <strong>
+              ${result.profile.name}
+            </strong>
+            —
+            ${formatFlow(
+              result.readings.flow
+            )}
+          </p>
+        `;
+      }
+    }
+
+
+    if (
+      caution.length > 0
+    ) {
+
+      html += `
+        <p>
+          <strong>
+            🟡 Use Caution
+          </strong>
+        </p>
+      `;
+
+      for (
+        const result
+        of caution
+      ) {
+
+        html += `
+          <p>
+            <strong>
+              ${result.profile.name}
+            </strong>
+            —
+            ${formatFlow(
+              result.readings.flow
+            )}
+          </p>
+        `;
+      }
+    }
+
+
+    if (
+      experienced.length > 0
+    ) {
+
+      html += `
+        <p>
+          <strong>
+            🟠 Experienced Waders Only
+          </strong>
+        </p>
+      `;
+
+      for (
+        const result
+        of experienced
+      ) {
+
+        html += `
+          <p>
+            <strong>
+              ${result.profile.name}
+            </strong>
+            —
+            ${formatFlow(
+              result.readings.flow
+            )}
+          </p>
+        `;
+      }
+    }
   }
 
-  const best = results.find(
-    result =>
-      result.evaluation.riverId ===
-      bestEvaluation.riverId
-  );
 
-  if (!best) {
-    box.innerHTML = `
+  if (
+    notRecommended.length > 0
+  ) {
+
+    html += `
+      <hr>
+
       <p>
-        No recommendation could be produced from the
-        currently available data.
+        <strong>
+          🔴 Not Recommended
+        </strong>
       </p>
     `;
 
-    return;
+
+    for (
+      const result
+      of notRecommended
+    ) {
+
+      html += `
+        <p>
+          <strong>
+            ${result.profile.name}
+          </strong>
+          —
+          ${formatFlow(
+            result.readings.flow
+          )}
+        </p>
+      `;
+    }
   }
 
-  const fishingRating =
-    createFishingRating(
-      best.evaluation.fishingScore
-    );
 
-  const scoringBasis =
-    createScoringBasis(
-      best.evaluation
-    );
-
-  box.innerHTML = `
+  html += `
     <p>
-      🥇 <strong>${best.profile.name}</strong>
-    </p>
-
-    <p>
-      <strong>USGS Gauge:</strong>
-      ${best.profile.gaugeLocation}
-    </p>
-
-    <p>
-      <strong>Flow:</strong>
-      ${formatFlow(best.readings.flow)}
-    </p>
-
-    <p>
-      <strong>Fishing Flow Zone:</strong>
-      ${best.evaluation.flowZoneIcon}
-      ${best.evaluation.flowZoneLabel}
-    </p>
-
-    <p>
-      <strong>Gage Height:</strong>
-      ${formatStage(best.readings.stage)}
-    </p>
-
-    <p>
-      <strong>Water Temperature:</strong>
-      ${formatTemperature(
-        best.readings.temperature
-      )}
-    </p>
-
-    <p>
-      <strong>Wading Recommendation:</strong>
-      ${best.evaluation.wading.icon}
-      ${best.evaluation.wading.label}
-    </p>
-
-    <p>
-      <strong>Fishing Rating:</strong>
-      ${formatFishingScore(
-        best.evaluation.fishingScore
-      )}
-      ${fishingRating}
-    </p>
-
-    <p>
-      <strong>Rating Basis:</strong>
-      ${scoringBasis}
-    </p>
-
-    <p>
-      🎣 <strong>First Fly:</strong>
-      ${best.evaluation.suggestedFly}
-    </p>
-
-    <p>
-      ${best.evaluation.guideNotes}
+      <small>
+        Wading status is based on the
+        more conservative of flow and
+        gage-height conditions.
+      </small>
     </p>
 
     <p>
       <small>
         Dashboard checked:
-        ${new Date().toLocaleString()}
+        ${new Date().toLocaleTimeString()}
       </small>
     </p>
   `;
-}
 
 
-/*
- * Describe which measurements contributed to the fishing score.
- */
-function createScoringBasis(evaluation) {
-  const factorNames = evaluation.factors.map(
-    factor => factor.name
-  );
-
-  const includesFlow =
-    factorNames.includes("flow");
-
-  const includesTemperature =
-    factorNames.includes("temperature");
-
-  if (
-    includesFlow &&
-    includesTemperature
-  ) {
-    return "Flow and water temperature";
-  }
-
-  if (includesFlow) {
-    return "Flow only — water temperature unavailable";
-  }
-
-  return "Insufficient live data";
-}
-
-
-/*
- * Convert the numerical score into a display label.
- */
-function createFishingRating(score) {
-  if (!Number.isFinite(score)) {
-    return "⚪ Unavailable";
-  }
-
-  if (score >= 8.5) {
-    return "— 🟢 Excellent";
-  }
-
-  if (score >= 7) {
-    return "— 🟢 Very Good";
-  }
-
-  if (score >= 5.5) {
-    return "— 🟡 Good";
-  }
-
-  if (score >= 4) {
-    return "— 🟠 Fair";
-  }
-
-  return "— 🔴 Limited";
+  box.innerHTML = html;
 }
 
 
 /*
  * Formatting helpers.
  */
-function formatFishingScore(score) {
-  return Number.isFinite(score)
-    ? `${score.toFixed(1)} / 10`
-    : "Not available";
-}
-
-
 function formatFlow(flow) {
+
   return Number.isFinite(flow)
-    ? `${Math.round(flow).toLocaleString()} CFS`
+    ? `${Math.round(
+        flow
+      ).toLocaleString()} CFS`
     : "Not reported";
 }
 
 
 function formatStage(stage) {
+
   return Number.isFinite(stage)
     ? `${stage.toFixed(2)} ft`
     : "Not reported";
 }
 
 
-function formatTemperature(temperature) {
-  return Number.isFinite(temperature)
+function formatTemperature(
+  temperature
+) {
+
+  return Number.isFinite(
+    temperature
+  )
     ? `${temperature.toFixed(1)}°F`
     : "Not reported";
 }
 
 
-function formatTimestamp(timestamp) {
-  if (
-    !(timestamp instanceof Date) ||
-    Number.isNaN(timestamp.getTime())
-  ) {
-    return "Not reported";
-  }
+function celsiusToFahrenheit(
+  celsius
+) {
 
-  return timestamp.toLocaleString();
-}
-
-
-function celsiusToFahrenheit(celsius) {
   return Number(
     (
       (celsius * 9 / 5) +
