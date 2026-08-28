@@ -95,11 +95,6 @@ const RIVER_PROFILES = {
         notRecommendedMin: 700
       },
 
-      /*
-       * Revised after field observation:
-       * 220 CFS / 2.64 ft was easily wadable.
-       */
-
       stage: {
         comfortableMax: 3.0,
         cautionMax: 3.5,
@@ -162,19 +157,18 @@ const RIVER_PROFILES = {
     target: "Smallmouth Bass / Trout",
 
     wading: {
-      flow: {
-        comfortableMax: 99,
-        cautionMax: 250,
-        experiencedMax: 400,
-        notRecommendedMin: 401
-      },
-
       /*
-       * Temporary stage thresholds based on the
-       * current Oil Creek baseline.
-       * These will be field-tested and adjusted
-       * after real-world Tionesta observations.
+       * Temporary thresholds based on the Oil Creek
+       * baseline. These will be field-tested and
+       * adjusted using actual Tionesta observations.
        */
+
+      flow: {
+        comfortableMax: 400,
+        cautionMax: 600,
+        experiencedMax: 699,
+        notRecommendedMin: 700
+      },
 
       stage: {
         comfortableMax: 3.0,
